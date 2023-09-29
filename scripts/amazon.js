@@ -1,4 +1,4 @@
-import { cart } from '../data/cart.js';
+import { cart, addToCart } from '../data/cart.js';
 import { products } from '../data/products.js';
 
 products.forEach((product) => {
@@ -56,42 +56,37 @@ products.forEach((product) => {
   </div>`;
 });
 
+function updateCartQuantity() {
+  let cartQuantity = 0;
+  cart.forEach(cartItem => cartQuantity += cartItem.quantity);
+  document.querySelector('.js-cart-quantity')
+    .innerHTML = cartQuantity;
+}
 let addedTimeoutId;
+let isProductNew;
+
+
+function showAddedAnimation(productId) {
+  isProductNew === productId ? clearTimeout(addedTimeoutId) : null;
+  const addedToCartElement = document.querySelector(`.js-added-to-cart-${productId}`);
+  addedToCartElement.style = "opacity:1";
+  addedTimeoutId = setTimeout(() => addedToCartElement.style = "opacity:0;", 2000);
+  isProductNew = productId;
+}
+
 document.querySelectorAll('.js-add-to-cart-button')
   .forEach(button => {
     button.addEventListener('click', () => {
       const { productId } = button.dataset;
-
-      let matchingItem;
-
-      cart.forEach((item) => {
-        if (item.productId === productId) {
-          matchingItem = item;
-        }
-      });
-
       const selectedValue = Number(document.querySelector(`.js-product-quantity-selector-${productId}`).value);
-      console.log(selectedValue);
-      if (matchingItem) {
-        matchingItem.quantity += selectedValue;
-      } else {
-        cart.push({
-          productId,
-          quantity: selectedValue
-        });
-      }
-      let cartQuantity = 0;
+      addToCart(productId, selectedValue);
 
-      console.log(cart);
-      cart.forEach((value) => {
-        cartQuantity += value.quantity;
-      });
-      document.querySelector('.js-cart-quantity')
-        .innerHTML = cartQuantity;
+      updateCartQuantity(productId);
 
-      const addedToCartElement = document.querySelector(`.js-added-to-cart-${productId}`);
-      addedToCartElement.style = "opacity:1";
-      clearTimeout(addedTimeoutId);
-      addedTimeoutId = setTimeout(() => addedToCartElement.style = "opacity:0;", 2000);
+      showAddedAnimation(productId);
+
     });
   });
+
+
+updateCartQuantity();
