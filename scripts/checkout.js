@@ -16,30 +16,14 @@ function getItemFromPorduct(productId) {
   return matchingItem;
 }
 
-function getTheDate() {
-  const date = new Date();
-  const twoDaysLater = new Date(date);
-  const randomDate = Math.random() * 10;
-  twoDaysLater.setDate(date.getDate() + randomDate);
-  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const namesOfMonth = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Agust', 'September', 'October', 'November', 'December'];
-  const deliveryDayObject = {
-    dayString: daysOfWeek[twoDaysLater.getDay()],
-    day: twoDaysLater.getDate(),
-    month: namesOfMonth[twoDaysLater.getMonth()]
-  };
-  return deliveryDayObject;
-}
-
 cart.forEach((product) => {
   const { productId, quantity } = product;
   const { image, name, priceCents } = getItemFromPorduct(productId);
-  const { dayString, day, month } = getTheDate();
   const orderElement = document.querySelector('.js-order-summary');
   orderElement.innerHTML += `
   <div class="cart-item-container">
     <div class="delivery-date">
-      Delivery date: ${dayString}, ${month} ${day}
+      Delivery date: Tuesday, June 21
     </div>
 
     <div class="cart-item-details-grid">
