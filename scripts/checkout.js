@@ -1,27 +1,17 @@
 import { cart, removeFromCart } from '../data/cart.js';
-import { products } from '../data/products.js';
-import { formatPrice } from './utils/money.js';
+import { getItemFromPorduct } from './utils/cart-product.js';
+import { calculateTaxFromPriceCents, calculateTotalFromPriceCents, formatPrice } from './utils/money.js';
+import { updateCartQuantity } from './utils/quantity.js';
 
-function getItemFromPorduct(productId) {
-  let matchingItem;
-  products.forEach(product => {
-    if (product.id === productId) {
-      const { image, name, priceCents } = product;
-      matchingItem = {
-        image,
-        name,
-        priceCents
-      }
-    }
-  });
-  return matchingItem;
-}
+let totalPriceCents = 0;
 
-cart.forEach((cartItem) => {
-  const { productId, quantity } = cartItem;
-  const { image, name, priceCents } = getItemFromPorduct(productId);
+function displayCart() {
   const orderElement = document.querySelector('.js-order-summary');
-  orderElement.innerHTML += `
+  orderElement.innerHTML = '';
+  cart.forEach((cartItem) => {
+    const { productId, quantity } = cartItem;
+    const { image, name, priceCents } = getItemFromPorduct(productId);
+    orderElement.innerHTML += `
   <div class="cart-item-container js-cart-item-container-${productId}">
     <div class="delivery-date">
       Delivery date: Tuesday, June 21
@@ -90,24 +80,31 @@ cart.forEach((cartItem) => {
       </div>
     </div>
   </div>`;
-  displayPayment(quantity, priceCents);
-});
-
-document.querySelectorAll(`.js-delete-quantity`)
-  .forEach((link) => {
-    link.addEventListener('click', () => {
-      const { productId } = link.dataset;
-
-      removeFromCart(productId);
-      const container = document.querySelector(`
-    .js-cart-item-container-${productId}
-    `);
-      container.remove();
-    });
+    totalPriceCents += priceCents * quantity;
+    displayPayment();
   });
 
-function displayPayment(quantity, priceCents) {
-  
+  document.querySelectorAll(`.js-delete-quantity`)
+    .forEach((link) => {
+      link.addEventListener('click', () => {
+        const { productId } = link.dataset;
+        const container = document.querySelector(`
+        .js-cart-item-container-${productId}
+        `);
+        container.remove();
+        removeFromCart(productId);
+        totalPriceCents = 0;
+        displayCart();
+        displayPayment();
+      });
+    });
+}
+
+
+
+
+function displayPayment() {
+  const cartQuantity = updateCartQuantity();
   const paymentElement = document.querySelector('.js-payment-summary')
   paymentElement.innerHTML = `
   <div class="payment-summary-title">
@@ -115,8 +112,8 @@ function displayPayment(quantity, priceCents) {
   </div>
   
   <div class="payment-summary-row">
-    <div>Items (${quantity}):</div>
-    <div class="payment-summary-money">$42.75</div>
+    <div>Items (${cartQuantity}):</div>
+    <div class="payment-summary-money">$${formatPrice(totalPriceCents)}</div>
   </div>
   
   <div class="payment-summary-row">
@@ -126,17 +123,17 @@ function displayPayment(quantity, priceCents) {
   
   <div class="payment-summary-row subtotal-row">
     <div>Total before tax:</div>
-    <div class="payment-summary-money">$47.74</div>
+    <div class="payment-summary-money">$${formatPrice(totalPriceCents + 499)}</div>
   </div>
   
   <div class="payment-summary-row">
     <div>Estimated tax (10%):</div>
-    <div class="payment-summary-money">$4.77</div>
+    <div class="payment-summary-money">$${(calculateTaxFromPriceCents(totalPriceCents))}</div>
   </div>
   
   <div class="payment-summary-row total-row">
     <div>Order total:</div>
-    <div class="payment-summary-money">$52.51</div>
+    <div class="payment-summary-money">$${calculateTotalFromPriceCents(totalPriceCents)}</div>
   </div>
   
   <button class="place-order-button button-primary">
@@ -147,3 +144,4 @@ function displayPayment(quantity, priceCents) {
 }
 
 displayPayment();
+displayCart();

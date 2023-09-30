@@ -1,7 +1,7 @@
-import { cart, addToCart } from '../data/cart.js';
+import { addToCart } from '../data/cart.js';
 import { products } from '../data/products.js';
 import { formatPrice } from './utils/money.js';
-import { cartQuantity } from './utils/quantity.js';
+import { updateCartQuantity } from './utils/quantity.js';
 
 products.forEach((product) => {
   const { image, name, rating, priceCents, id } = product;
@@ -58,14 +58,15 @@ products.forEach((product) => {
   </div>`;
 });
 
-function updateCartQuantity() {
+
+function displayCartQuantity() {
+  const cartQuantity = updateCartQuantity();
   document.querySelector('.js-cart-quantity')
     .innerHTML = cartQuantity;
 }
 
 let addedTimeoutId;
 let isProductNew;
-
 
 function showAddedAnimation(productId) {
   isProductNew === productId ? clearTimeout(addedTimeoutId) : null;
@@ -82,7 +83,7 @@ document.querySelectorAll('.js-add-to-cart-button')
       const selectedValue = Number(document.querySelector(`.js-product-quantity-selector-${productId}`).value);
       addToCart(productId, selectedValue);
 
-      updateCartQuantity();
+      displayCartQuantity();
 
       showAddedAnimation(productId);
 
@@ -90,4 +91,4 @@ document.querySelectorAll('.js-add-to-cart-button')
   });
 
 
-updateCartQuantity();
+displayCartQuantity();
