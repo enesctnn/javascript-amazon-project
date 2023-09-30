@@ -98,10 +98,8 @@ function displayCart() {
         displayPayment();
       });
     });
+
 }
-
-
-
 
 function displayPayment() {
   const cartQuantity = updateCartQuantity();
@@ -141,6 +139,7 @@ function displayPayment() {
   </button>
   </div>
   </div>`;
+  document.querySelector('.js-checkout-header-middle-section').innerHTML = `Checkout (<a class="return-to-home-link" href="amazon.html">${cartQuantity} items</a>)`;
 }
 
 displayPayment();
