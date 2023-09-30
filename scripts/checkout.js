@@ -1,7 +1,6 @@
-import { cart, removeFromCart } from '../data/cart.js';
+import { cart, removeFromCart, calculateCartQuantity } from '../data/cart.js';
 import { getItemFromPorduct } from './utils/cart-product.js';
 import { calculateTaxFromPriceCents, calculateTotalFromPriceCents, formatPrice } from './utils/money.js';
-import { updateCartQuantity } from './utils/quantity.js';
 
 let totalPriceCents = 0;
 
@@ -102,7 +101,7 @@ function displayCart() {
 }
 
 function displayPayment() {
-  const cartQuantity = updateCartQuantity();
+  const cartQuantity = calculateCartQuantity();
   const paymentElement = document.querySelector('.js-payment-summary')
   paymentElement.innerHTML = `
   <div class="payment-summary-title">
