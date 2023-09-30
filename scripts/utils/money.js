@@ -1,3 +1,4 @@
+
 export function formatPrice(priceCents) {
   return Number((priceCents / 100).toFixed(2));
 }
@@ -10,4 +11,11 @@ export function calculateTotalFromPriceCents(priceCents) {
   const plusShipping = (priceCents + 499);
   const plusShippingTax = plusShipping / 10;
   return (((plusShipping + plusShippingTax) / 100).toFixed(2));
+}
+
+export function cartPrice(productId) {
+  let totalPriceCents = 0;
+  cart.forEach((cartItem) => {
+    
+  });
 }

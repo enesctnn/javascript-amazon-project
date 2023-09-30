@@ -1,4 +1,4 @@
-import { cart, removeFromCart, calculateCartQuantity } from '../data/cart.js';
+import { cart, removeFromCart, calculateCartQuantity, updateProductQuantity, calculateCartPrice } from '../data/cart.js';
 import { getItemFromPorduct } from './utils/cart-product.js';
 import { calculateTaxFromPriceCents, calculateTotalFromPriceCents, formatPrice } from './utils/money.js';
 
@@ -26,13 +26,20 @@ function displayCart() {
         <div class="product-price">
           $${formatPrice(priceCents)}
         </div>
-        <div class="product-quantity">
+        <div class="product-quantity js-product-quantity-${productId}">
           <span>
-            Quantity: <span class="quantity-label">${quantity}</span>
+            Quantity: <span class="quantity-label js-quantity-label-${productId}">${quantity}</span>
           </span>
-          <span class="update-quantity-link link-primary">
+          <span class="update-quantity-link link-primary js-update-quantity js-update-quantity-${productId}" data-product-id="${productId}" data-quantity="${quantity}">
             Update
           </span>
+          <div class="display-none js-save-container-${productId}">
+          <input type="number" class="quantity-input js-quantity-input-${productId}">
+          <span class="save-quantity-link link-primary js-save-quantity"
+          data-product-id="${productId}">
+          Save
+          </span>
+          </div>
           <span class="delete-quantity-link link-primary js-delete-quantity" data-product-id="${productId}">
             Delete
           </span>
@@ -44,7 +51,7 @@ function displayCart() {
           Choose a delivery option:
         </div>
         <div class="delivery-option">
-          <input type="radio" checked class="delivery-option-input" name="delivery-option-${productId}">
+        <input type="radio" checked class="delivery-option-input" name="delivery-option-${productId}">
           <div>
             <div class="delivery-option-date">
               Tuesday, June 21
@@ -79,10 +86,13 @@ function displayCart() {
       </div>
     </div>
   </div>`;
-    totalPriceCents += priceCents * quantity;
-    displayPayment();
+    totalPriceCents = Number(calculateCartPrice(productId));
   });
+  updateLinksOnClick();
+  displayPayment();
+}
 
+function updateLinksOnClick() {
   document.querySelectorAll(`.js-delete-quantity`)
     .forEach((link) => {
       link.addEventListener('click', () => {
@@ -94,10 +104,37 @@ function displayCart() {
         removeFromCart(productId);
         totalPriceCents = 0;
         displayCart();
-        displayPayment();
       });
     });
 
+  document.querySelectorAll('.js-update-quantity')
+    .forEach((link) => {
+      link.addEventListener('click', () => {
+        const { productId, quantity } = link.dataset;
+        document.querySelector(`.js-product-quantity-${productId}`)
+          .classList.add('is-editing-quantity');
+        document.querySelector(`.js-save-container-${productId}`)
+          .classList.add('is-editing-quantity');
+        document.querySelector(`.js-quantity-input-${productId}`).value = quantity;
+        link.classList.add('display-none');
+      });
+    });
+
+  document.querySelectorAll('.js-save-quantity')
+    .forEach((link) => {
+      link.addEventListener('click', () => {
+        const { productId } = link.dataset;
+        document.querySelector(`.js-save-container-${productId}`)
+          .classList.remove('is-editing-quantity');
+        document.querySelector(`.js-update-quantity-${productId}`)
+          .classList.remove('display-none');
+        document.querySelector(`.js-quantity-label-${productId}`)
+          .classList.remove('display-none');
+        const selectedQuantity = Number(document.querySelector(`.js-quantity-input-${productId}`).value);
+        updateProductQuantity(productId, selectedQuantity);
+        displayCart();
+      });
+    });
 }
 
 function displayPayment() {
@@ -141,5 +178,5 @@ function displayPayment() {
   document.querySelector('.js-checkout-header-middle-section').innerHTML = `Checkout (<a class="return-to-home-link" href="amazon.html">${cartQuantity} items</a>)`;
 }
 
-displayPayment();
 displayCart();
+displayPayment();

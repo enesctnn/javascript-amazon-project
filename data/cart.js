@@ -1,3 +1,5 @@
+import { getItemFromPorduct } from "../scripts/utils/cart-product.js";
+
 export let cart = JSON.parse(localStorage.getItem('cart1'))
   || [];
 
@@ -24,6 +26,13 @@ export function addToCart(productId, selectedValue) {
   saveToStorage();
 }
 
+export function updateProductQuantity(productId, selectedQuantity) {
+  cart.forEach((cartItem) => {
+    cartItem.productId === productId ? cartItem.quantity = selectedQuantity : null;
+  });
+  saveToStorage();
+}
+
 export function removeFromCart(productId) {
 
   let newCart = [];
@@ -42,4 +51,17 @@ export function calculateCartQuantity() {
   let cartQuantity = 0;
   cart.forEach(cartItem => cartQuantity += cartItem.quantity);
   return cartQuantity;
+}
+
+export function calculateCartPrice(productId) {
+  let totalPriceCents = 0;
+  cart.forEach((cartItem) => {
+    if (cartItem.productId === productId) {
+      const matchingItem = getItemFromPorduct(cartItem.productId);
+      const { priceCents } = matchingItem;
+      const { quantity } = cartItem;
+      totalPriceCents += (priceCents * quantity);
+    }
+  });
+  return totalPriceCents;
 }
