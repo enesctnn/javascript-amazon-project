@@ -23,6 +23,7 @@ export function addToCart(productId, selectedValue) {
   }
   saveToStorage();
 }
+
 export function removeFromCart(productId) {
 
   let newCart = [];

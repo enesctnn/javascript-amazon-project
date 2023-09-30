@@ -1,5 +1,6 @@
 import { cart, removeFromCart } from '../data/cart.js';
 import { products } from '../data/products.js';
+import { formatPrice } from './utils/money.js';
 
 function getItemFromPorduct(productId) {
   let matchingItem;
@@ -16,8 +17,8 @@ function getItemFromPorduct(productId) {
   return matchingItem;
 }
 
-cart.forEach((product) => {
-  const { productId, quantity } = product;
+cart.forEach((cartItem) => {
+  const { productId, quantity } = cartItem;
   const { image, name, priceCents } = getItemFromPorduct(productId);
   const orderElement = document.querySelector('.js-order-summary');
   orderElement.innerHTML += `
@@ -34,7 +35,7 @@ cart.forEach((product) => {
           ${name}
         </div>
         <div class="product-price">
-          $${(priceCents / 100).toFixed(2)}
+          $${formatPrice(priceCents)}
         </div>
         <div class="product-quantity">
           <span>
@@ -89,13 +90,14 @@ cart.forEach((product) => {
       </div>
     </div>
   </div>`;
+  displayPayment(quantity, priceCents);
 });
 
 document.querySelectorAll(`.js-delete-quantity`)
   .forEach((link) => {
     link.addEventListener('click', () => {
       const { productId } = link.dataset;
-      
+
       removeFromCart(productId);
       const container = document.querySelector(`
     .js-cart-item-container-${productId}
@@ -103,3 +105,45 @@ document.querySelectorAll(`.js-delete-quantity`)
       container.remove();
     });
   });
+
+function displayPayment(quantity, priceCents) {
+  
+  const paymentElement = document.querySelector('.js-payment-summary')
+  paymentElement.innerHTML = `
+  <div class="payment-summary-title">
+    Order Summary
+  </div>
+  
+  <div class="payment-summary-row">
+    <div>Items (${quantity}):</div>
+    <div class="payment-summary-money">$42.75</div>
+  </div>
+  
+  <div class="payment-summary-row">
+    <div>Shipping &amp; handling:</div>
+    <div class="payment-summary-money">$4.99</div>
+  </div>
+  
+  <div class="payment-summary-row subtotal-row">
+    <div>Total before tax:</div>
+    <div class="payment-summary-money">$47.74</div>
+  </div>
+  
+  <div class="payment-summary-row">
+    <div>Estimated tax (10%):</div>
+    <div class="payment-summary-money">$4.77</div>
+  </div>
+  
+  <div class="payment-summary-row total-row">
+    <div>Order total:</div>
+    <div class="payment-summary-money">$52.51</div>
+  </div>
+  
+  <button class="place-order-button button-primary">
+    Place your order
+  </button>
+  </div>
+  </div>`;
+}
+
+displayPayment();
